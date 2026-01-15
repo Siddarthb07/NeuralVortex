@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neuralvortex"
+version = "0.1.0"
+description = "ML-accelerated surrogate for drone-propeller vortex CFD. Phase 1: data pipeline."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Siddarth Boggarapu", email = "siddarthb078@gmail.com" }
+]
+keywords = [
+    "scientific-machine-learning",
+    "neural-operator",
+    "fourier-neural-operator",
+    "physics-informed-neural-network",
+    "computational-fluid-dynamics",
+    "vortex-ring",
+    "bemt",
+    "drone",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/Siddarthb07/NeuralVortex"
+"Parent simulator (vortex rings)" = "https://github.com/Siddarthb07/Drone-Vortex-Ring-Simulation"
+"Parent simulator (BEMT)" = "https://github.com/Siddarthb07/Propeller-simulator"
+
+[tool.setuptools]
+packages = ["data", "models"]

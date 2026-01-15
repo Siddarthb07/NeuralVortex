@@ -1,0 +1,17 @@
+# Phase 1 (data generation) — lightweight, no GPU/ML deps.
+numpy>=1.24
+scipy>=1.10
+h5py>=3.8
+matplotlib>=3.7
+tqdm>=4.65
+pydantic>=2.0
+pyyaml>=6.0
+
+# Phase 2/3 dependencies — uncomment when you start training.
+# torch>=2.1
+# neuraloperator>=0.3
+# deepxde>=1.10
+# wandb>=0.16
+
+# Dev / test.
+pytest>=7.4

@@ -1,0 +1,31 @@
+# NeuralVortex parameter-sweep configuration.
+#
+# `mode: grid` enumerates the full Cartesian product of the ranges below.
+# `mode: lhs`  draws a Latin-hypercube sample of size --n from the ranges.
+#
+# The default ranges below produce ~16k samples (~17k = 19 * 5 * 11 * 16)
+# on a full grid sweep. For Phase 1 smoke we use --n with mode=lhs and a
+# coarse grid_res.
+
+mode: lhs   # "grid" or "lhs"
+seed: 42
+
+ranges:
+  rpm:
+    min: 1000.0
+    max: 10000.0
+    step: 500.0       # used by mode=grid (np.arange-style)
+  blades:
+    values: [2, 3, 4, 5, 6]
+  pitch_deg:
+    min: 5.0
+    max: 25.0
+    step: 2.0
+  v_inflow:
+    min: 0.0
+    max: 15.0
+    step: 1.0
+
+# Field-resolution defaults; CLI --grid-res overrides.
+grid_res: 64
+t_final: 0.6          # seconds of vortex-ring evolution before sampling field
