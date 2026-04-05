@@ -1,0 +1,3 @@
+# Optional CPU baseline (Phase 2 smoke, not FNO)
+-r requirements.txt
+scikit-learn>=1.3.0
