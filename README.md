@@ -7,19 +7,26 @@
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Data pipeline + repo scaffold | DONE |
-| 2 | FNO training (`neuraloperator`, W&B logging) | IN PROGRESS |
-| 3 | PINN baseline (`DeepXDE`, Navier-Stokes residual loss) | PLANNED (stretch) |
-| 4 | `report.pdf` + Gradio HF Space demo | PLANNED |
+| 2 | Torch surrogate (`train_tfno.py`, optional `neuralop` TFNO + W&B) | DONE (smoke-scale default; scale data for real accuracy) |
+| 3 | PINN stretch | Documented + divergence smoke (`train/pinn_residual_smoke.py`) — no DeepXDE loop shipped |
+| 4 | Report + Gradio | `docs/report.md` + `demo/app_gradio.py` (+ HF outline in `demo/README.md`) |
 
-There are no learned-surrogate results yet. Phase 1 only proves the dataset can be regenerated end-to-end from the parent simulators on a single machine.
+Smoke HDF5 trains in minutes on CPU using the Conv3D fallback (`--no-tfno`). Large LHS sweeps remain the path to meaningful generalization metrics.
 
-## What's in the box (Phase 1)
+## Demo gallery
 
-- A unified, headless solver API around the two parent simulators (`data/solvers.py`).
-- A CLI that sweeps the four-parameter input space `(rpm, blades, pitch, v_inflow)` and writes a single HDF5 (`data/generate.py`).
-- A smoke test that generates 4 samples on a 16-cube grid in well under 2 minutes (`scripts/smoke_test.sh`).
-- A pytest suite that exercises the solver API on a tiny grid.
-- A notebook that loads the HDF5 and plots a velocity and pressure slice (`notebooks/01_explore_dataset.ipynb`).
+Regenerate assets anytime — see [`docs/DEMO.md`](docs/DEMO.md) (`scripts/capture_demo_assets.py`, `scripts/plot_inference_panel.py`).
+
+| Velocity slice | Training loss | Pooled MAE | Inference panel |
+|:---:|:---:|:---:|:---:|
+| ![](docs/assets/demo/velocity_slice.png) | ![](docs/assets/demo/training_loss.png) | ![](docs/assets/demo/pooled_mae.png) | ![](docs/assets/demo/surrogate_inference_panel.png) |
+
+## What's in the box
+
+- Phase **1:** unified solver API (`data/solvers.py`), HDF5 sweeps (`data/generate.py`), smoke tests, explorer notebook.
+- Phase **2:** torch surrogate training (`train/train_tfno.py`) with optional TFNO (`neuralop`) or Conv3D fallback; optional W&B.
+- Phase **3:** PINN scope notes (`docs/pinn_notes.md`) + divergence smoke (`train/pinn_residual_smoke.py`).
+- Phase **4:** Markdown report (`docs/report.md`) + Gradio sliders (`demo/app_gradio.py`).
 
 ## Architecture
 
@@ -34,17 +41,17 @@ flowchart LR
         sweep --> bemt --> vrings --> biot --> h5
     end
 
-    subgraph train [Phase 2-3 - Training, planned]
-        fno[FNO baseline<br/>4-layer 3D, ~5M params<br/>neuraloperator lib]
-        pinn[PINN baseline<br/>DeepXDE<br/>Navier-Stokes residual]
+    subgraph train [Phase 2-3 - Training]
+        fno[Torch surrogate<br/>TFNO or Conv3D fallback]
+        pinn[PINN docs + div smoke<br/>no DeepXDE loop shipped]
         h5 --> fno
         h5 --> pinn
     end
 
-    subgraph ship [Phase 4 - Ship, planned]
-        bench[Benchmark<br/>solver wallclock vs FNO vs PINN<br/>RMSE, energy conservation]
-        report[report.pdf - 4-6 pages]
-        demo[Gradio HF Space - sliders to flow field]
+    subgraph ship [Phase 4 - Ship]
+        bench[Pooled MAE eval<br/>eval_surrogate.py]
+        report[docs/report.md]
+        demo[Gradio demo<br/>demo/app_gradio.py]
         fno --> bench --> report --> demo
     end
 ```
@@ -56,8 +63,21 @@ python -m venv .venv
 source .venv/bin/activate    # or: .venv\Scripts\activate on Windows
 pip install -r requirements.txt
 bash scripts/smoke_test.sh   # writes data/smoke.h5
-pytest tests/                # runs the solver smoke suite
+pytest tests/                # solver + surrogate smoke (needs torch for surrogate test)
 ```
+
+### Phases 2–4 (short path)
+
+```bash
+pip install -r requirements-train.txt
+python train/train_tfno.py --no-tfno --epochs 40 --cpu-only --h5 data/smoke.h5
+python train/eval_surrogate.py --no-tfno --cpu-only
+python train/pinn_residual_smoke.py --h5 data/smoke.h5
+pip install -r requirements-demo.txt
+python demo/app_gradio.py
+```
+
+See `train/README.md` and `docs/report.md`.
 
 The smoke test produces `data/smoke.h5` with 4 samples, each holding a `(3, 16, 16, 16)` velocity field and a `(16, 16, 16)` pressure field plus the BEMT thrust/torque/efficiency for the same input parameters.
 
@@ -88,7 +108,7 @@ The only new physics is a textbook Biot-Savart sampler that turns each `VortexRi
 
 - The vortex-ring evolution is reduced-order (discrete circular rings with Helmholtz self-induction + viscous decay), not a full Navier-Stokes solve. The dataset is meaningful as a training target for an operator-learning baseline, not as a CFD ground truth at the level of OpenFOAM / Nek5000.
 - The BEMT model is the parent simulator's `simple_bemt` (uniform inflow, thin-airfoil `cl/cd`). Glauert induction iteration and Prandtl tip losses are deferred to a future revision, matching the parent repo's `full_bemt` TODO.
-- No models have been trained yet. The "100x speedup" framing is the goal of Phase 2, not a measured result.
+- Smoke-trained surrogates prove the training loop; wall-clock speedups vs the generator require profiling on your hardware and a deployed checkpoint.
 
 ## Citation
 
