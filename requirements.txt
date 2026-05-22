@@ -7,11 +7,9 @@ tqdm>=4.65
 pydantic>=2.0
 pyyaml>=6.0
 
-# Phase 2/3 dependencies — uncomment when you start training.
-# torch>=2.1
-# neuraloperator>=0.3
-# deepxde>=1.10
-# wandb>=0.16
+# Surrogate training / W&B / optional TFNO — install from repo root:
+#   pip install -r requirements-train.txt
+# Optional DeepXDE PINN experiments are not pinned here.
 
 # Dev / test.
 pytest>=7.4

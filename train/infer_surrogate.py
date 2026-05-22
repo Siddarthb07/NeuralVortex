@@ -7,6 +7,7 @@ from pathlib import Path
 import torch
 
 from train.field_dataset import params_to_grid_tensor
+from train.field_metrics import channel_statistics
 from train.hdf5_loader import pooled_features
 from train.surrogate_models import TinyConv3dSurrogate, build_field_surrogate
 
@@ -57,3 +58,36 @@ def forward_pooled(
     pr = arr[3, ...]
     pools = pooled_features({"velocity": vel, "pressure": pr})
     return {"mean_speed": float(pools[0]), "mean_pressure": float(pools[1]), "max_speed": float(pools[2])}
+
+
+def forward_full_field(
+    model: torch.nn.Module,
+    ckpt: dict,
+    inp: dict[str, float],
+    *,
+    device: torch.device,
+) -> dict:
+    """Denormalized volumetric prediction plus pooled scalars and per-channel statistics."""
+    rpm_lo, rpm_hi = float(ckpt["rpm_bounds"][0]), float(ckpt["rpm_bounds"][1])
+    grid_shape = tuple(int(x) for x in ckpt["spatial_shape"])
+    x = params_to_grid_tensor(inp, rpm_lo=rpm_lo, rpm_hi=rpm_hi, grid_shape=grid_shape).unsqueeze(0).to(device)
+    mean = ckpt["norm"]["mean"].to(device)
+    std = ckpt["norm"]["std"].to(device)
+    with torch.no_grad():
+        yn = model(x)[0]
+        y = yn * std + mean
+    arr = y.cpu().numpy()
+    vel = arr[:3]
+    pr = arr[3, ...]
+    pools = pooled_features({"velocity": vel, "pressure": pr})
+    chans = channel_statistics(vel, pr)
+    return {
+        "velocity": vel,
+        "pressure": pr,
+        "pooled": {
+            "mean_speed": float(pools[0]),
+            "mean_pressure": float(pools[1]),
+            "max_speed": float(pools[2]),
+        },
+        "channels": chans,
+    }

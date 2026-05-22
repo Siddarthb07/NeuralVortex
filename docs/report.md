@@ -4,7 +4,7 @@ This document substitutes for a formal PDF until LaTeX export is wired. It summa
 
 ## Abstract
 
-NeuralVortex couples two reduced-order propeller/vortex simulators into a single HDF5 dataset and trains an operator-style surrogate to approximate volumetric velocity and pressure fields from four scalar controls (RPM, blade count, pitch, inflow). Phase 1 validates data generation; Phase 2 adds a torch surrogate with optional Fourier Neural Operator weights via `neuralop`; Phase 3 documents PINN-style sanity checks without claiming full Navier–Stokes calibration; Phase 4 exposes a Gradio slider demo over pooled flow metrics.
+NeuralVortex couples two reduced-order propeller/vortex simulators into a single HDF5 dataset and trains an operator-style surrogate to approximate volumetric velocity and pressure fields from four scalar controls (RPM, blade count, pitch, inflow). Phase 1 validates data generation; Phase 2 adds a torch surrogate with optional Fourier Neural Operator weights via `neuralop`; Phase 3 documents PINN-style sanity checks without claiming full Navier–Stokes calibration; Phase 4 ships a phased Gradio dashboard (HDF5 metadata, full-field channel stats, divergence, docs) plus [`docs/DEEP_DIVE.md`](docs/DEEP_DIVE.md).
 
 ## 1. Data generation
 
@@ -28,7 +28,9 @@ Full PINN training on Navier–Stokes residuals is **not** shipped as stable aut
 
 ## 5. Demo (Phase 4)
 
-`demo/app_gradio.py` loads the best checkpoint and maps sliders → pooled predictions. Full volumetric visualization is deferred (would benefit from ONNX + dedicated viz stack).
+`demo/app_gradio.py` is a **Blocks** dashboard aligned with Phases 1–4: HDF5 file metadata + nearest solver sample, surrogate **pooled** scalars plus **per-channel** volumetric statistics and a velocity-magnitude slice, finite-difference **divergence** vs nearest HDF5 velocity, and a reproduction / shipping tab. Environment variables: **`NEURALVORTEX_CKPT`** (checkpoint), **`NEURALVORTEX_H5`** (dataset). Narrative orientation: [`docs/DEEP_DIVE.md`](DEEP_DIVE.md).
+
+Full interactive volumetric visualization (volume rendering / ONNX export) remains future work.
 
 ## Limitations (explicit)
 
@@ -42,7 +44,7 @@ Full PINN training on Navier–Stokes residuals is **not** shipped as stable aut
 pip install -r requirements.txt
 python data/generate.py --n 8 --grid-res 16 --out data/smoke.h5
 pip install -r requirements-train.txt
-pip install gradio
+pip install -r requirements-demo.txt
 python train/train_tfno.py --no-tfno --epochs 40 --cpu-only --h5 data/smoke.h5
 python train/eval_surrogate.py --no-tfno --cpu-only
 python train/pinn_residual_smoke.py --h5 data/smoke.h5

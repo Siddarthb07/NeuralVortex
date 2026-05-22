@@ -7,8 +7,10 @@ pip install -r requirements.txt matplotlib
 pip install -r requirements-train.txt
 python scripts/capture_demo_assets.py            # plots + short train + eval
 pip install -r requirements-demo.txt
-python demo/app_gradio.py                        # Gradio on http://127.0.0.1:7860
+python demo/app_gradio.py                        # Gradio on http://127.0.0.1:7860 — see docs/DEEP_DIVE.md
 ```
+
+Use env **`NEURALVORTEX_CKPT`** and **`NEURALVORTEX_H5`** to override checkpoint and HDF5 paths (see `demo/README.md`).
 
 ## Static captures (matplotlib)
 

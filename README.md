@@ -9,7 +9,7 @@
 | 1 | Data pipeline + repo scaffold | DONE |
 | 2 | Torch surrogate (`train_tfno.py`, optional `neuralop` TFNO + W&B) | DONE (smoke-scale default; scale data for real accuracy) |
 | 3 | PINN stretch | Documented + divergence smoke (`train/pinn_residual_smoke.py`) — no DeepXDE loop shipped |
-| 4 | Report + Gradio | `docs/report.md` + `demo/app_gradio.py` (+ HF outline in `demo/README.md`) |
+| 4 | Report + Gradio | `docs/report.md` + phased dashboard `demo/app_gradio.py`; narrative [`docs/DEEP_DIVE.md`](docs/DEEP_DIVE.md); HF outline in `demo/README.md` |
 
 Smoke HDF5 trains in minutes on CPU using the Conv3D fallback (`--no-tfno`). Large LHS sweeps remain the path to meaningful generalization metrics.
 
@@ -26,7 +26,7 @@ Regenerate assets anytime — see [`docs/DEMO.md`](docs/DEMO.md) (`scripts/captu
 - Phase **1:** unified solver API (`data/solvers.py`), HDF5 sweeps (`data/generate.py`), smoke tests, explorer notebook.
 - Phase **2:** torch surrogate training (`train/train_tfno.py`) with optional TFNO (`neuralop`) or Conv3D fallback; optional W&B.
 - Phase **3:** PINN scope notes (`docs/pinn_notes.md`) + divergence smoke (`train/pinn_residual_smoke.py`).
-- Phase **4:** Markdown report (`docs/report.md`) + Gradio sliders (`demo/app_gradio.py`).
+- Phase **4:** Markdown report (`docs/report.md`) + phased Gradio dashboard (`demo/app_gradio.py`) + [`docs/DEEP_DIVE.md`](docs/DEEP_DIVE.md).
 
 ## Architecture
 
@@ -118,7 +118,7 @@ The only new physics is a textbook Biot-Savart sampler that turns each `VortexRi
   title        = {NeuralVortex: ML-accelerated surrogate for drone-propeller vortex CFD},
   year         = {2026},
   howpublished = {\url{https://github.com/Siddarthb07/NeuralVortex}},
-  note         = {Phase 1: data-generation pipeline.}
+  note         = {Phases 1–4: data generation, torch surrogate smoke pipeline, Gradio demo.}
 }
 ```
 

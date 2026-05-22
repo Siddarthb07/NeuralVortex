@@ -19,21 +19,8 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
+from train.field_metrics import central_div  # noqa: E402
 from train.hdf5_loader import iter_samples  # noqa: E402
-
-
-def central_div(vx: np.ndarray, vy: np.ndarray, vz: np.ndarray, spacing: float = 1.0) -> np.ndarray:
-    """Cartesian central differences on a regular grid; spacing cancels when reporting ||div|| / ||v||."""
-    # Arrays indexed [z, y, x] matching loaders.
-    dvx_dx = np.zeros_like(vx)
-    dvy_dy = np.zeros_like(vy)
-    dvz_dz = np.zeros_like(vz)
-
-    dvx_dx[..., 1:-1] = (vx[..., 2:] - vx[..., :-2]) / (2.0 * spacing)
-    dvy_dy[:, 1:-1, :] = (vy[:, 2:, :] - vy[:, :-2, :]) / (2.0 * spacing)
-    dvz_dz[1:-1, :, :] = (vz[2:, :, :] - vz[:-2, :, :]) / (2.0 * spacing)
-
-    return dvx_dx + dvy_dy + dvz_dz
 
 
 def main() -> int:
