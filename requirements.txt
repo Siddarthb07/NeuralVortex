@@ -12,4 +12,4 @@ pyyaml>=6.0
 # Optional DeepXDE PINN experiments are not pinned here.
 
 # Dev / test.
-pytest>=7.4
+pytest>=9.1.1
