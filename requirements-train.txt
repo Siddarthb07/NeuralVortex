@@ -1,4 +1,4 @@
 # Phase 2+ — install on top of requirements.txt
 torch>=2.2
-wandb>=0.16
+wandb>=0.28.0
 neuraloperator>=0.3.0
